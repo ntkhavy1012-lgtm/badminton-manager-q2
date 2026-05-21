@@ -36,6 +36,13 @@ const [matchType, setMatchType] = useState("Trận xếp");
   const [editLevel, setEditLevel] = useState("Basic");
   const [editGender, setEditGender] = useState("Nam");
   const [memberType, setMemberType] = useState("Member");
+  const [activeLevel, setActiveLevel] = useState("Advanced");
+
+  const getGroupCounts = (group: string) => {
+    const groupMembers = members.filter((m) => m.level === group);
+    const presentCount = groupMembers.filter((m) => m.present).length;
+    return `${presentCount}/${groupMembers.length}`;
+  };
 
   const fetchMembers = async () => {
     const { data } = await supabase
@@ -362,435 +369,463 @@ const playerSuggestions = members
 
   return (
     <div className="container">
-    <div className="title">🏸 Badminton Manager</div>
+      <div className="title">🏸 Badminton Manager</div>
 
-    <div className="subtitle">
-      Điểm danh, cộng trận và theo dõi lượt đánh realtime
-    </div>
+      <div className="subtitle">
+        Điểm danh, cộng trận và theo dõi lượt đánh realtime
+      </div>
 
       <div className="page-layout">
         <div className="left-panel">
+          {/* Top Stats Cards */}
           <div className="grid-4">
             <div className="card">
               <div className="card-title">Tổng thành viên</div>
-            <div className="card-number">{totalMembers}</div>
+              <div className="card-number">{totalMembers}</div>
             </div>
 
             <div className="card">
               <div className="card-title">Có mặt hôm nay</div>
-            <div className="card-number">{presentToday}</div>
+              <div className="card-number">{presentToday}</div>
             </div>
 
             <div className="card">
               <div className="card-title">Off hôm nay</div>
-            <div className="card-number">{offToday}</div>
+              <div className="card-number">{offToday}</div>
             </div>
 
             <div className="card">
               <div className="card-title">Tổng trận hôm nay</div>
-            <div className="card-number">{totalMatches}</div>
+              <div className="card-number">{totalMatches}</div>
             </div>
           </div>
 
+          {/* Thêm thành viên */}
           <div className="card mb-4">
             <div className="section-title">Thêm thành viên</div>
 
             <div className="flex gap-4">
               <input
-              className="flex-1"
+                className="flex-1"
                 placeholder="Nhập tên thành viên"
                 value={name}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setName(e.target.value)
-              }
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setName(e.target.value)
+                }
               />
 
-            <select
-              value={level}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setLevel(e.target.value)
-              }
-            >
+              <select
+                value={level}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setLevel(e.target.value)
+                }
+              >
                 <option>Basic</option>
                 <option>Beginner</option>
                 <option>Intermediate</option>
                 <option>Advanced</option>
               </select>
 
-            <select
-    value={gender}
-    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-      setGender(e.target.value)
-    }
-  >
+              <select
+                value={gender}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                  setGender(e.target.value)
+                }
+              >
                 <option>Nam</option>
                 <option>Nữ</option>
               </select>
 
-            <select
-              value={memberType}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                setMemberType(e.target.value)
-              }
-            >
-              <option>Member</option>
-              <option>Vãng lai</option>
-            </select>
-
-            <button className="black-btn" onClick={addMember}>
-              Thêm
-            </button>
-          </div>
-        </div>
-
-        <div className="card match-compose-card">
-          <div className="section-header">
-            <div className="section-title">Trận đang xếp</div>
-
-            <div className="match-compose-actions">
               <select
-                className="match-type-select"
-                value={matchType}
+                value={memberType}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-                  setMatchType(e.target.value)
+                  setMemberType(e.target.value)
                 }
               >
-                <option>Trận xếp</option>
-                <option>Trận order</option>
+                <option>Member</option>
+                <option>Vãng lai</option>
               </select>
 
-              <button className="black-btn" onClick={createUpcomingMatch}>
-                Ghép trận
+              <button className="black-btn" onClick={addMember}>
+                Thêm
               </button>
             </div>
           </div>
 
-          <div className="match-search-box">
-            <input
-              className="match-search-input"
-              placeholder="Gõ tên người chơi..."
-              value={searchPlayer}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setSearchPlayer(e.target.value)
-              }
-              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                if (e.key === "Enter" && playerSuggestions[0]) {
-                  toggleSelectPlayer(playerSuggestions[0]);
-                  setSearchPlayer("");
-                }
-              }}
-            />
-
-            {searchPlayer && (
-              <div className="match-suggestions">
-                {playerSuggestions.map((member) => (
-                  <div
-                    key={member.id}
-                    className="match-suggestion-item"
-                    onClick={() => {
-                      toggleSelectPlayer(member);
-                      setSearchPlayer("");
-                    }}
-                  >
-                    {member.name}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="selected-row">
-            {selectedPlayers.length === 0 ? (
-              <div className="empty-text">Chưa chọn thành viên</div>
-            ) : (
-              selectedPlayers.map((player, index) => (
-                <div key={player.id} className="selected-pill">
-                  {index + 1}. {player.name}
+          {/* Attendance card with Chrome Tabs */}
+          <div className="card attendance-card">
+            {/* Chrome tabs container */}
+            <div className="tabs-container">
+              {["Advanced", "Intermediate", "Beginner", "Basic"].map((group) => (
+                <div
+                  key={group}
+                  className={`chrome-tab ${activeLevel === group ? "active" : ""}`}
+                  onClick={() => setActiveLevel(group)}
+                >
+                  {group}
+                  <span className="tab-badge">{getGroupCounts(group)}</span>
                 </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="main-grid">
-          <div className="card">
-            <div className="section-header">
-              <div className="section-title">Attendance hôm nay</div>
-
-              <button className="reset-btn" onClick={resetMatches}>
-                <span className="reset-icon">↻</span>
-                Reset
-              </button>
-              <button className="delete-guest-btn" onClick={deleteGuestMembers}>
-  🗑 Xoá VL
-</button>
+              ))}
             </div>
 
-          <div className="attendance-scroll">
-              {["Intermediate", "Basic", "Advanced"].map((group) => (
-                <div key={group} className="attendance-group">
-                  <div className="attendance-group-title">{group}</div>
+            <div className="section-header">
+              <div className="section-title">
+                Danh sách điểm danh ({activeLevel})
+              </div>
 
-                  {[...members]
-                    .filter((member) => member.level === group)
-                .sort((a, b) => {
-                      const pa = Number(a.present);
-                      const pb = Number(b.present);
+              <div className="attendance-actions">
+                <button className="reset-btn" onClick={resetMatches}>
+                  <span className="reset-icon">↻</span>
+                  Reset
+                </button>
+                <button className="delete-guest-btn" onClick={deleteGuestMembers}>
+                  🗑 Xoá VL
+                </button>
+              </div>
+            </div>
 
-                      if (pa !== pb) return pb - pa;
+            <div className="attendance-scroll">
+              <div className="attendance-group">
+                {[...members]
+                  .filter((member) => member.level === activeLevel)
+                  .sort((a, b) => {
+                    const pa = Number(a.present);
+                    const pb = Number(b.present);
 
-                      const aLast = a.name.trim().split(" ").pop() || "";
-                      const bLast = b.name.trim().split(" ").pop() || "";
+                    if (pa !== pb) return pb - pa;
 
-                      return aLast.localeCompare(bLast);
-                    })
-                    .map((member, index) => (
-                   <div
-  key={member.id}
-  className={`member-card ${
-  member.present
-    ? member.gender === "Nam"
-      ? "member-active-male"
-      : "member-active-female"
-    : ""
-} ${
-  member.type === "Vãng lai"
-    ? "guest-member"
-    : ""
-}`}
->
+                    const aLast = a.name.trim().split(" ").pop() || "";
+                    const bLast = b.name.trim().split(" ").pop() || "";
+
+                    return aLast.localeCompare(bLast);
+                  })
+                  .map((member, index) => (
+                    <div
+                      key={member.id}
+                      className={`member-card ${
+                        member.present
+                          ? member.gender === "Nam"
+                            ? "member-active-male"
+                            : "member-active-female"
+                          : ""
+                      } ${
+                        member.type === "Vãng lai"
+                          ? "guest-member"
+                          : ""
+                      }`}
+                    >
                       <div className="member-left">
-                         <div className="member-name">
-  {member.type === "Vãng lai" && (
-    <span className="guest-warning">!</span>
-  )}
-  {index + 1}. {member.name}
-</div>
-                          <div className="level">{member.level}</div>
-                          <div className="member-status">
-                            {member.present ? "Present" : "Off"}
-                      </div>
-                      <div className="member-matches">
-                            {member.total_matches} trận
-                          </div>
+                        <div className="member-name">
+                          {member.type === "Vãng lai" && (
+                            <span className="guest-warning">!</span>
+                          )}
+                          {index + 1}. {member.name}
+                        </div>
+                        <div className="level">{member.level}</div>
+                        <div className="member-status">
+                          {member.present ? "Present" : "Off"}
+                        </div>
+                        <div className="member-matches">
+                          {member.total_matches} trận
+                        </div>
                       </div>
 
                       <div className="member-actions">
-                        <button
-                            className={
-                              selectedPlayers.some((p) => p.id === member.id)
-                                ? "yellow-btn"
-                                : member.present
-                                ? "yellow-soft-btn"
-                                : "match-btn"
-                            }
-                          onClick={() => toggleSelectPlayer(member)}
-                        >
-                          Chọn
-                        </button>
+                        {member.present ? (
+                          <>
+                            <button
+                              className={
+                                selectedPlayers.some((p) => p.id === member.id)
+                                  ? "yellow-btn active-select"
+                                  : "yellow-soft-btn"
+                              }
+                              onClick={() => toggleSelectPlayer(member)}
+                            >
+                              Chọn
+                            </button>
 
-                        <button
-                            className={`green-btn ${
-                              member.present ? "disabled-btn" : ""
-                            }`}
-                          disabled={member.present}
-                          onClick={() => setPresent(member.id, true)}
-                        >
-                          Có mặt
-                        </button>
+                            <button
+                              className="blue-btn"
+                              onClick={() => addMatch(member.id)}
+                            >
+                              +1
+                            </button>
 
+                            <button
+                              className="orange-btn"
+                              onClick={() => removeMatch(member.id)}
+                            >
+                              -1
+                            </button>
+
+                            <button
+                              className="gray-btn"
+                              onClick={() => setPresent(member.id, false)}
+                            >
+                              Vắng
+                            </button>
+                          </>
+                        ) : (
                           <button
-                            className="gray-btn"
-                            onClick={() => setPresent(member.id, false)}
+                            className="green-btn"
+                            onClick={() => setPresent(member.id, true)}
                           >
-                            Off
+                            Có mặt
                           </button>
+                        )}
 
-                        <button
-  className={
-    member.present
-      ? "blue-btn"
-      : "match-btn disabled-btn"
-  }
-  disabled={!member.present}
-  onClick={() => addMatch(member.id)}
->
-  +1 trận
-</button>
-
-                         <button
-  className={
-    member.present
-      ? "orange-btn"
-      : "match-btn disabled-btn"
-  }
-  disabled={!member.present}
-  onClick={() => removeMatch(member.id)}
->
-  -1 trận
-</button>
-
-                          <div className="member-action-row">
-
-  <button
-    className="red-btn"
-    onClick={() => deleteMember(member.id, member.name)}
-  >
-                          Xóa
-                        </button>
-
-  <button
-  className="edit-btn"
-  onClick={() => openEditMember(member)}
->
-  ✏️
-</button>
-
-</div>
-
+                        <div className="member-util-actions">
+                          <button
+                            className="edit-btn-icon"
+                            onClick={() => openEditMember(member)}
+                            title="Sửa"
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            className="delete-btn-icon"
+                            onClick={() => deleteMember(member.id, member.name)}
+                            title="Xóa"
+                          >
+                            🗑
+                          </button>
                         </div>
                       </div>
-                    ))}
-                </div>
-              ))}
+                    </div>
+                  ))}
+                {[...members].filter((member) => member.level === activeLevel).length === 0 && (
+                  <div className="empty-text">Chưa có thành viên nào ở trình độ này.</div>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="card">
-            <div className="section-title">Biểu đồ lượt đấu</div>
+          {/* Bottom Grid: Leaderboard + Timeline side-by-side */}
+          <div className="bottom-grid">
+            {/* Leaderboard Chart Card */}
+            <div className="card leaderboard-card">
+              <div className="section-title">🏆 Biểu đồ lượt đấu</div>
 
-            {members
-  .filter((member) => member.present)
-  .sort((a, b) => a.total_matches - b.total_matches)
-  .map((member, index) => (
-                <div key={member.id} className="mb-4">
-                  <div
-                    className="flex"
-                    style={{ justifyContent: "space-between" }}
-                  >
-                    <div>
-                      #{index + 1} {member.name}
-                      {member.present_at &&
-                        ` (${formatPresentTime(member.present_at)})`}
+              <div className="leaderboard-list">
+                {members
+                  .filter((member) => member.present)
+                  .sort((a, b) => a.total_matches - b.total_matches)
+                  .map((member, index) => (
+                    <div key={member.id} className="leaderboard-item">
+                      <div className="leaderboard-header">
+                        <div className="leaderboard-user">
+                          <span className="leaderboard-rank">#{index + 1}</span>
+                          <span className="leaderboard-name">{member.name}</span>
+                          {member.present_at && (
+                            <span className="leaderboard-time">
+                              ({formatPresentTime(member.present_at)})
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="leaderboard-count">
+                          <strong>{member.total_matches}</strong> trận
+                        </div>
+                      </div>
+
+                      <div className="bar-bg">
+                        <div
+                          className={`bar-fill ${
+                            member.total_matches <= 5
+                              ? "low"
+                              : member.total_matches <= 10
+                              ? "mid"
+                              : "high"
+                          }`}
+                          style={{
+                            width: `${Math.min(100, member.total_matches * 10)}%`,
+                          }}
+                        />
+                      </div>
                     </div>
+                  ))}
+                {members.filter((member) => member.present).length === 0 && (
+                  <div className="empty-text">Chưa có thành viên nào có mặt.</div>
+                )}
+              </div>
+            </div>
 
-                    <div>
-                      <strong>{member.total_matches}</strong> trận
-                    </div>
-                  </div>
+            {/* Timeline Activities Card */}
+            <div className="card timeline-card">
+              <div className="section-title">⏱ Timeline hoạt động</div>
+              <Timeline />
+            </div>
+          </div>
+        </div>
 
-                  <div className="bar-bg mt-2">
+        {/* Right Panel (Sidebar) */}
+        <div className="right-panel">
+          {/* Trận đang xếp (Matchmaker Composer) */}
+          <div className="card match-compose-card">
+            <div className="section-header">
+              <div className="section-title">Trận đang xếp</div>
+
+              <div className="match-compose-actions">
+                <select
+                  className="match-type-select"
+                  value={matchType}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    setMatchType(e.target.value)
+                  }
+                >
+                  <option>Trận xếp</option>
+                  <option>Trận order</option>
+                </select>
+
+                <button className="black-btn" onClick={createUpcomingMatch}>
+                  Ghép trận
+                </button>
+              </div>
+            </div>
+
+            <div className="match-search-box">
+              <input
+                className="match-search-input"
+                placeholder="Gõ tên người chơi..."
+                value={searchPlayer}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setSearchPlayer(e.target.value)
+                }
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                  if (e.key === "Enter" && playerSuggestions[0]) {
+                    toggleSelectPlayer(playerSuggestions[0]);
+                    setSearchPlayer("");
+                  }
+                }}
+              />
+
+              {searchPlayer && (
+                <div className="match-suggestions">
+                  {playerSuggestions.map((member) => (
                     <div
-                      className={`bar-fill ${
-                        member.total_matches <= 5
-                          ? "low"
-                          : member.total_matches <= 10
-                          ? "mid"
-                          : "high"
-                      }`}
-                      style={{
-                        width: `${member.total_matches * 10}%`,
+                      key={member.id}
+                      className="match-suggestion-item"
+                      onClick={() => {
+                        toggleSelectPlayer(member);
+                        setSearchPlayer("");
                       }}
-                    />
-                  </div>
+                    >
+                      {member.name}
+                    </div>
+                  ))}
                 </div>
-              ))}
-          </div>
+              )}
+            </div>
+
+            <div className="selected-row">
+              {selectedPlayers.length === 0 ? (
+                <div className="empty-text">Chưa chọn thành viên</div>
+              ) : (
+                selectedPlayers.map((player, index) => (
+                  <div key={player.id} className="selected-pill">
+                    {index + 1}. {player.name}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
 
-          <div className="card mt-4">
-            <div className="section-title">Timeline hoạt động</div>
-            <Timeline />
-          </div>
-      </div>
-
-      <div className="right-panel">
-        <div className="card upcoming-card">
+          {/* Upcoming Matches list */}
+          <div className="card upcoming-card">
             <div className="section-title">Upcoming Match</div>
 
             {upcomingMatches.map((match, index) => (
-  <div
-    key={match.id}
-    className={`match-order-card ${
-      match.match_type === "Trận order"
-        ? "match-order-purple"
-        : "match-order-yellow"
-    }`}
-  >
-    <div className="match-order-title">
-      Match #{index + 1}
-    </div>
+              <div
+                key={match.id}
+                className={`match-order-card ${
+                  match.match_type === "Trận order"
+                    ? "match-order-purple"
+                    : "match-order-yellow"
+                }`}
+              >
+                <div className="match-order-title">
+                  Match #{index + 1}
+                </div>
 
-    <div className="match-type-tag">
-      {match.match_type}
-    </div>
+                <div className="match-type-tag">
+                  {match.match_type}
+                </div>
 
-                {match.players.map((player, i) => (
-      <div key={player.id}>
-        {i + 1}. {player.name}
-      </div>
-                ))}
+                <div className="match-players-list">
+                  {match.players.map((player, i) => (
+                    <div key={player.id} className="match-player-row">
+                      {i + 1}. {player.name}
+                    </div>
+                  ))}
+                </div>
 
-    <button
-      className="red-btn mt-2"
-      onClick={() => deleteUpcomingMatch(match.id)}
-    >
-      Xóa trận
-    </button>
+                <div className="match-card-actions">
+                  <button
+                    className="cancel-btn"
+                    onClick={() => deleteUpcomingMatch(match.id)}
+                  >
+                    Xóa trận
+                  </button>
+                </div>
               </div>
             ))}
+            {upcomingMatches.length === 0 && (
+              <div className="empty-text">Chưa có trận đấu nào được ghép.</div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Edit modal */}
       {editingMember && (
-  <div className="modal-overlay">
-    <div className="edit-modal">
-      <div className="modal-title">Chỉnh sửa thành viên</div>
+        <div className="modal-overlay">
+          <div className="edit-modal">
+            <div className="modal-title">Chỉnh sửa thành viên</div>
 
-      <label>Tên thành viên</label>
-      <input
-        value={editName}
-        onChange={(e) => setEditName(e.target.value)}
-      />
+            <label>Tên thành viên</label>
+            <input
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+            />
 
-      <label>Trình độ</label>
-      <select
-        value={editLevel}
-        onChange={(e) => setEditLevel(e.target.value)}
-      >
-        <option>Basic</option>
-        <option>Beginner</option>
-        <option>Intermediate</option>
-        <option>Advanced</option>
-      </select>
+            <label>Trình độ</label>
+            <select
+              value={editLevel}
+              onChange={(e) => setEditLevel(e.target.value)}
+            >
+              <option>Basic</option>
+              <option>Beginner</option>
+              <option>Intermediate</option>
+              <option>Advanced</option>
+            </select>
 
-      <label>Giới tính</label>
-      <select
-        value={editGender}
-        onChange={(e) => setEditGender(e.target.value)}
-      >
-        <option>Nam</option>
-        <option>Nữ</option>
-      </select>
+            <label>Giới tính</label>
+            <select
+              value={editGender}
+              onChange={(e) => setEditGender(e.target.value)}
+            >
+              <option>Nam</option>
+              <option>Nữ</option>
+            </select>
 
-      <div className="modal-actions">
-        <button
-          className="gray-btn"
-          onClick={() => setEditingMember(null)}
-        >
-          Hủy
-        </button>
+            <div className="modal-actions">
+              <button
+                className="gray-btn"
+                onClick={() => setEditingMember(null)}
+              >
+                Hủy
+              </button>
 
-        <button
-          className="black-btn"
-          onClick={saveEditMember}
-        >
-          Lưu thay đổi
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              <button
+                className="black-btn"
+                onClick={saveEditMember}
+              >
+                Lưu thay đổi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
