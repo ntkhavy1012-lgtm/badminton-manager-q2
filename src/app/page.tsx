@@ -660,13 +660,23 @@ const playerSuggestions = members
           className={`lang-btn ${lang === "vi" ? "active" : ""}`}
           onClick={() => handleSetLang("vi")}
         >
-          🇻🇳 VN
+          <img 
+            src="https://images.emojiterra.com/google/android-11/512px/1f1fb-1f1f3.png" 
+            alt="VN" 
+            className="lang-flag" 
+          />
+          VN
         </button>
         <button
           className={`lang-btn ${lang === "en" ? "active" : ""}`}
           onClick={() => handleSetLang("en")}
         >
-          🇬🇧 ENG
+          <img 
+            src="https://images.emojiterra.com/google/android-11/512px/1f1ec-1f1e7.png" 
+            alt="ENG" 
+            className="lang-flag" 
+          />
+          ENG
         </button>
       </div>
 
