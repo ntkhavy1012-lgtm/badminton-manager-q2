@@ -1562,3 +1562,232 @@ button:active {
     box-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
   }
 }
+
+/* Language Switcher Styling */
+.container {
+  position: relative;
+}
+
+.language-switcher-container {
+  position: absolute;
+  top: 24px;
+  right: 20px;
+  display: flex;
+  background: rgba(226, 232, 240, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: var(--shadow-sm);
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.language-switcher-container:hover {
+  border-color: rgba(203, 213, 225, 1);
+  box-shadow: var(--shadow-md);
+  background: rgba(226, 232, 240, 0.6);
+}
+
+.lang-btn {
+  height: 32px !important;
+  padding: 0 14px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  border-radius: var(--radius-full) !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-muted) !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  transform: none !important;
+}
+
+.lang-btn:hover {
+  color: var(--text-dark) !important;
+  transform: none !important;
+}
+
+.lang-btn.active {
+  background: #ffffff !important;
+  color: var(--primary) !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.12), 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Adjust layout on mobile devices */
+@media (max-width: 640px) {
+  .language-switcher-container {
+    position: static;
+    margin-bottom: 16px;
+    align-self: flex-end;
+  }
+}
+
+/* Match Card Header & Categorization */
+.match-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+
+.match-category-tags {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.match-category-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tag-male-double {
+  background: rgba(59, 130, 246, 0.08);
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+}
+
+.tag-female-double {
+  background: rgba(236, 72, 153, 0.08);
+  color: #db2777;
+  border: 1px solid rgba(236, 72, 153, 0.15);
+}
+
+.tag-mixed-double {
+  background: rgba(139, 92, 246, 0.08);
+  color: #7c3aed;
+  border: 1px solid rgba(139, 92, 246, 0.15);
+}
+
+.tag-odd-double {
+  background: rgba(245, 158, 11, 0.08);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.tag-default-double {
+  background: #f1f5f9;
+  color: var(--text-muted);
+}
+
+/* Matchup Box Styles */
+.matchup-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid #edf2f7;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.matchup-team {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.matchup-team.team-a {
+  align-items: flex-start;
+}
+
+.matchup-team.team-b {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.matchup-player {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.matchup-team.team-b .matchup-player {
+  flex-direction: row-reverse;
+}
+
+.gender-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.gender-dot.male {
+  background-color: #3b82f6;
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+}
+
+.gender-dot.female {
+  background-color: #ec4899;
+  box-shadow: 0 0 4px rgba(236, 72, 153, 0.5);
+}
+
+.matchup-vs-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.vs-badge-small {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 6px rgba(244, 63, 94, 0.2);
+}
+
+/* Double Card Actions */
+.cancel-match-btn {
+  background: var(--rose-soft) !important;
+  color: #b91c1c !important;
+  border: 1px solid rgba(239, 68, 68, 0.15) !important;
+}
+
+.cancel-match-btn:hover {
+  background: var(--rose) !important;
+  color: #ffffff !important;
+}
+
+.confirm-match-btn {
+  background: var(--emerald-soft) !important;
+  color: #047857 !important;
+  border: 1px solid rgba(16, 185, 129, 0.15) !important;
+}
+
+.confirm-match-btn:hover {
+  background: var(--emerald) !important;
+  color: #ffffff !important;
+}
+
+.gap-2 {
+  gap: 8px;
+}

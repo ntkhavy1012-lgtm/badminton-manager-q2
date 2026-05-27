@@ -12,7 +12,7 @@ export type MatchLog = {
   created_at: string;
 };
 
-export default function Timeline() {
+export default function Timeline({ lang = "vi" }: { lang?: "vi" | "en" }) {
   const [logs, setLogs] = useState<MatchLog[] | null>(null);
 
   const fetchLogs = async () => {
@@ -32,12 +32,27 @@ export default function Timeline() {
     fetchLogs();
   }, []);
 
+  const translateAction = (action: string) => {
+    if (lang === "vi") return action;
+    
+    if (action === "Trận xếp") return "Auto Match";
+    if (action === "Trận order") return "Order Match";
+    if (action === "+1 trận") return "+1 match";
+    if (action === "-1 trận") return "-1 match";
+    
+    return action
+      .replace("+1 trận", "+1 match")
+      .replace("-1 trận", "-1 match")
+      .replace("Trận xếp", "Auto Match")
+      .replace("Trận order", "Order Match");
+  };
+
   if (logs === null) {
-    return <div className="timeline-loading">Đang tải dữ liệu...</div>;
+    return <div className="timeline-loading">{lang === "vi" ? "Đang tải dữ liệu..." : "Loading data..."}</div>;
   }
 
   if (logs.length === 0) {
-    return <div className="timeline-empty">Chưa có dữ liệu hoạt động</div>;
+    return <div className="timeline-empty">{lang === "vi" ? "Chưa có dữ liệu hoạt động" : "No activity data yet"}</div>;
   }
 
   return (
@@ -70,11 +85,11 @@ export default function Timeline() {
               <div className="timeline-content">
                 <div className="timeline-header">
                   <span className="timeline-user">{log.member_name}</span>
-                  <span className={`timeline-badge ${badgeClass}`}>{log.action}</span>
+                  <span className={`timeline-badge ${badgeClass}`}>{translateAction(log.action)}</span>
                 </div>
                 <div className="timeline-meta">
                   <span className="timeline-time">
-                    {new Date(log.created_at).toLocaleString("vi-VN", {
+                    {new Date(log.created_at).toLocaleString(lang === "vi" ? "vi-VN" : "en-US", {
                       hour: "2-digit",
                       minute: "2-digit",
                       day: "2-digit",
@@ -83,7 +98,7 @@ export default function Timeline() {
                   </span>
                   {log.matches_after > 0 && (
                     <span className="timeline-count">
-                      Sau cập nhật: {log.matches_after} trận
+                      {lang === "vi" ? `Sau cập nhật: ${log.matches_after} trận` : `After update: ${log.matches_after} matches`}
                     </span>
                   )}
                 </div>
